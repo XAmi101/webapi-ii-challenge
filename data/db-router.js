@@ -21,7 +21,7 @@ router.get("/:id", (req, res) => {
 	const id = req.params.id;
 	db.findById(id)
 		.then(data => {
-			if (data) {
+			if (data.length>0) {
 				res.status(200).json(data);
 			} else {
 				res.status(404).json({
@@ -105,6 +105,73 @@ router.delete("/:id", (req, res) => {
 })
 
 
+/////// <<<<<< COmments
+
+// same as api/posts/:id/comments
+// router.get ("/:id/comments", (req, res) => {
+//     const id = req.params.id;
+//     db.findCommentById(id)
+// 		.then(data => {
+// 			if (data) {
+// 				res.status(200).json(data);
+// 			} else {
+// 				res.status(404).json({
+// 					message: "The post with given id doesn't exist"
+// 				});
+// 			}
+// 		})
+// 		.catch(error => {
+// 			response.status(500).json({
+// 				error: "The post information with given id could not be retrieved."
+// 			});
+// 		});
+// })
+
+
+
+router.get ("/:id/comments", (req, res) => {
+    const id = req.params.id;
+    
+    db.findPostComments(id)
+		.then(data => {
+			if (data.length>0) {
+				res.status(200).json(data);
+			} else {
+				res.status(404).json({
+					message: "The post with given id doesn't exist"
+				});
+			}
+		})
+		.catch(error => {
+			response.status(500).json({
+				error: "The post information with given id could not be retrieved."
+			});
+		});
+})
+
+
+
+// add comment
+router.post ("/:id/comments", (req, res) => {
+    const update = {...req.body, post_id: req.params.id};
+
+    // const id = req.params.id;
+    if (!update.text ) {
+		res.status(400).json({
+			errorMessage: "Please provide text for the post."
+		});
+	} else {
+        db.insertComment(update)
+			.then(data => {
+				res.status(201).json(data);
+			})
+			.catch(error => {
+				res.status(500).json({
+					error: "There was an error while saving the comment to the database"
+				});
+			}); 
+	}
+});
 
 
 //export default router; << the equivalent in react
